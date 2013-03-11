@@ -20,5 +20,7 @@
 AccessControl.xcodeproj/
 AccessControl/AccessControl.1
 AccessControl/*.o
-AccessControl/.DS_Store
+AccessControl/.DS_Storei
+AccessControl/acceso-rem
+AccessControl/serv-acceso
 .DS_Store
