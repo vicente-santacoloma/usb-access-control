@@ -1,0 +1,24 @@
+# Object files
+*.o
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Xcode
+AccessControl.xcodeproj/
+AccessControl/AccessControl.1
+AccessControl/*.o
+AccessControl/.DS_Store
+.DS_Store
