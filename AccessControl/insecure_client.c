@@ -33,7 +33,7 @@ void request_access_control(int sockfd)
     if (n < 0) {
       error("ERROR reading from socket");
     }
-    printf("\n%s", buffer);
+    printf("%s", buffer);
     
     bzero(buffer, BUFFER_SIZE);
     fgets(buffer, BUFFER_SIZE, stdin);
@@ -48,7 +48,7 @@ void request_access_control(int sockfd)
   if (n < 0) {
     error("ERROR reading from socket");
   }
-  printf("\n%s", buffer);
+  printf("%s", buffer);
   
 }
 

@@ -6,14 +6,7 @@
 //  Copyright (c) 2013 Vicente Santacoloma. All rights reserved.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define TRUE 1
-#define FALSE 0
-#define USERS_DB "users_db"
-#define BUFFER_SIZE 256
+#include "user_management.h"
 
 int add_user(char * username, char * password)
 {
@@ -65,9 +58,15 @@ int check_access_control(char * username, char * password)
   return FALSE;
 }
 
+/*
 int main(int argc, const char * argv[])
 {
-  
+  add_user("user1", "user1");
+  add_user("user2", "user2");
+  add_user("user3", "user3");
+  add_user("user4", "user4");
+  add_user("user5", "user5");
+  printf("Check: %d", check_access_control("user1", "user1"));
   
   return 0;
-}
+}*/

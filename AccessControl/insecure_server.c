@@ -47,6 +47,7 @@ void response_access_control(int newsockfd)
   if (n < 0) {
     error("ERROR reading from socket");
   }
+  username[strlen(username) - 1] = 0;
   
   n = write(newsockfd, PASSWORD, strlen(PASSWORD));
   if (n < 0) {
@@ -57,9 +58,10 @@ void response_access_control(int newsockfd)
   if (n < 0) {
     error("ERROR reading from socket");
   }
+  password[strlen(password) - 1] = 0;
   
   int access_control = check_access_control(username, password);
-  
+  printf("Access Control: %d", access_control);
   if(access_control) {
     n = write(newsockfd, ACCESS_GRANTED, strlen(ACCESS_GRANTED));
     if (n < 0) {

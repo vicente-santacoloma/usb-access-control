@@ -6,12 +6,7 @@
 //  Copyright (c) 2013 Vicente Santacoloma. All rights reserved.
 //
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define TRUE 1
-#define FALSE 0
+#include "utilities.h"
 
 void error(const char * msg)
 {
@@ -66,8 +61,7 @@ int client_load_parameters(int argc, const char * argv [], char ** server_ip,
 
 int server_load_parameters(int argc, const char * argv [], int * port_number)
 {
-    
-  if ((argc != 3) || (strcmp(argv[1],"-p") == 0)) {
+  if ((argc != 3) || (strcmp(argv[1],"-p") != 0)) {
     return FALSE;
   }
   *port_number = atoi(argv[2]);
