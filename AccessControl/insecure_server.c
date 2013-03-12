@@ -35,6 +35,7 @@ void response_access_control(int newsockfd) {
   if (n < 0) {
     error("ERROR reading from socket");
   }
+  
   username[strlen(username) - 1] = 0;
   
   n = write(newsockfd, PASSWORD, strlen(PASSWORD));

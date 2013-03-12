@@ -12,7 +12,7 @@ int port_number;
 
 int tcp_listen() {
   
-  int sockfd, portno;
+  int sockfd, porstno;
   struct sockaddr_in serv_addr;
   
   sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -35,11 +35,12 @@ int tcp_listen() {
   return sockfd;
 }
 
-int server_load_parameters(int argc, const char * argv [], int * port_number) {
+int server_load_parameters(int argc, const char * argv [], int *port_number) {
   
   if ((argc != 3) || (strcmp(argv[1],"-p") != 0)) {
     return FALSE;
   }
+
   *port_number = atoi(argv[2]);
   
   return TRUE;
