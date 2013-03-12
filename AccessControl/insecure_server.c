@@ -6,38 +6,26 @@
 //  Copyright (c) 2013 Vicente Santacoloma. All rights reserved.
 //
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-
-#include "utilities.h"
+#include "server.h"
 #include "user_management.h"
 
 #define TRUE 1
 #define FALSE 0
-#define LISTEN_CONNECTIONS 10
 #define BUFFER_SIZE 256
 #define USERNAME "Username:"
 #define PASSWORD "Password:"
 #define ACCESS_GRANTED "Access Granted"
 #define ACCESS_DENIED  "Access Denied"
 
-int port_number;
-
-void response_access_control(int newsockfd)
-{
+void response_access_control(int newsockfd) {
+  
   char username [BUFFER_SIZE];
   char password [BUFFER_SIZE];
   int n;
   
   bzero(username, BUFFER_SIZE);
   bzero(password, BUFFER_SIZE);
-  
-  
+
   n = write(newsockfd, USERNAME, strlen(USERNAME));
   if (n < 0) {
     error("ERROR writing to socket");
@@ -76,26 +64,12 @@ void response_access_control(int newsockfd)
   
 }
 
-void execute()
-{
-  int sockfd, newsockfd, portno, pid;
+void execute() {
+  
+  int sockfd, newsockfd, pid;
+  sockfd = tcp_listen();
   socklen_t clilen;
-  struct sockaddr_in serv_addr, cli_addr;
-  
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sockfd < 0) {
-    error("ERROR opening socket");
-  }
-  
-  bzero((char *) &serv_addr, sizeof(serv_addr));
-  portno = port_number;
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = INADDR_ANY;
-  serv_addr.sin_port = htons(portno);
-  if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-    error("ERROR on binding");
-  }
-  listen(sockfd, LISTEN_CONNECTIONS);
+  struct sockaddr_in cli_addr;
   clilen = sizeof(cli_addr);
   
   while (1) {
@@ -120,8 +94,7 @@ void execute()
 
 }
 
-int main(int argc, const char * argv[])
-{
+int main(int argc, const char * argv[]) {
   
   if (!server_load_parameters(argc, argv, &port_number)) {
     printf("Invalid Input Format\n");

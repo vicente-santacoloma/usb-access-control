@@ -3,11 +3,11 @@ CFLAGS=-c -Wall
 
 all:  insecure_client insecure_server
 
-insecure_client: insecure_client.o utilities.o
-	$(CC) insecure_client.o utilities.o -o acceso-rem
+insecure_client: insecure_client.o client.o common.o
+	$(CC) insecure_client.o client.o common.o -o acceso-rem
 
-insecure_server: insecure_server.o utilities.o user_management.o
-	$(CC) insecure_server.o utilities.o user_management.o -o serv-acceso
+insecure_server: insecure_server.o server.o common.o user_management.o
+	$(CC) insecure_server.o server.o common.o user_management.o -o serv-acceso
 
 insecure_client.o: insecure_client.c
 	$(CC) $(CFLAGS) insecure_client.c
@@ -15,8 +15,14 @@ insecure_client.o: insecure_client.c
 insecure_server.o: insecure_server.c
 	$(CC) $(CFLAGS) insecure_server.c
 
-utilities.o: utilities.h utilities.c
-	$(CC) $(CFLAGS) utilities.c
+client.o: client.h client.c
+	$(CC) $(CFLAGS) client.c
+
+server.o: server.h server.c
+	$(CC) $(CFLAGS) server.c
+
+common.o: common.h common.c
+	$(CC) $(CFLAGS) common.c
   
 user_management.o: user_management.h user_management.c
 	$(CC) $(CFLAGS) user_management.c

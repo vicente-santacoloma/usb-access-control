@@ -8,8 +8,8 @@
 
 #include "user_management.h"
 
-int add_user(char * username, char * password)
-{
+int add_user(char * username, char * password) {
+  
   FILE *fp;
   
   /* open the file */
@@ -28,8 +28,8 @@ int add_user(char * username, char * password)
   return TRUE;
 }
 
-int check_access_control(char * username, char * password)
-{
+int check_access_control(char * username, char * password) {
+  
   FILE * fp;
   char aux_username [BUFFER_SIZE];
   char aux_password [BUFFER_SIZE];
