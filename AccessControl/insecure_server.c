@@ -85,6 +85,7 @@ void execute() {
     if (pid == 0)  {
       close(sockfd);
       response_access_control(newsockfd);
+      close(newsockfd);
       exit(0);
     } else {
       close(newsockfd);
