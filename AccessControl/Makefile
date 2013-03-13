@@ -1,13 +1,25 @@
 CC=gcc
 CFLAGS=-c -Wall
 
-all:  insecure_client insecure_server
+all: secure_client secure_server insecure_client insecure_server
+
+secure_client: secure_client.o client.o common.o
+	$(CC) secure_client.o client.o common.o -o acceso-rem-seg
+
+secure_server: secure_server.o server.o common.o user_management.o
+	$(CC) secure_server.o server.o common.o user_management.o -o serv-acceso-seg
 
 insecure_client: insecure_client.o client.o common.o
 	$(CC) insecure_client.o client.o common.o -o acceso-rem
 
 insecure_server: insecure_server.o server.o common.o user_management.o
 	$(CC) insecure_server.o server.o common.o user_management.o -o serv-acceso
+
+secure_client.o: secure_client.c
+	$(CC) $(CFLAGS) secure_client.c
+  
+secure_server.o: secure_server.c
+	$(CC) $(CFLAGS) secure_server.c
 
 insecure_client.o: insecure_client.c
 	$(CC) $(CFLAGS) insecure_client.c

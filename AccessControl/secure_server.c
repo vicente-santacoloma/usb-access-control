@@ -20,9 +20,10 @@
 #define ACCESS_DENIED  "Access Denied"
 #define CERTIFICATE_FILE ""
 #define KEY_FILE ""
+#define FAIL -1
 
-SSL_CTX *initialize_context_server()
-{   
+SSL_CTX *initialize_context_server() {
+  
   SSL_METHOD *method;
   SSL_CTX *context;
  
@@ -41,8 +42,8 @@ SSL_CTX *initialize_context_server()
 }
 
 
-void load_certificates(SSL_CTX* context, char* certificate_f, char* key_f)
-{
+void load_certificates(SSL_CTX* context, char* certificate_f, char* key_f) {
+  
  /* set the local certificate from CertFile */
     if ( SSL_CTX_use_certificate_file(context, certificate_f, SSL_FILETYPE_PEM) <= 0 )
     {
@@ -115,6 +116,7 @@ void response_access_control(SSL* ssl) {
 }
 
 void execute() {
+  
   SSL_CTX *context;
   int sockfd, newsockfd, pid;
   sockfd = tcp_listen();
