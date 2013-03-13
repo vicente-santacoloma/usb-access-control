@@ -12,7 +12,7 @@ int port_number;
 
 int tcp_listen() {
   
-  int sockfd, porstno;
+  int sockfd, portno;
   struct sockaddr_in serv_addr;
   
   sockfd = socket(AF_INET, SOCK_STREAM, 0);

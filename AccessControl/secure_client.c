@@ -10,18 +10,23 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <resolv.h>
+#include "openssl/bio.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
+#include "openssl/x509.h"
+#include "openssl/pem.h"
+#include "openssl/crypto.h"
 
 #include "client.h"
 
 #define BUFFER_SIZE 256
-#define REQUIRE_SERVER_AUTH 1
+#define REQUIRE_SERVER_AUTH 0
 
 /* Print SSL errors and exit*/
-int berr_exit(char *string;) {
-  BIO_printf(bio_err,"%s\n",string);
-  ERR_print_errors(bio_err);
+int berr_exit(char *string) {
+  fprintf(stderr,"%s\n",string);
+  //BIO_printf(bio_err,"%s\n",string);
+  //ERR_print_errors(bio_err);
   exit(0);
 }
 
@@ -33,7 +38,7 @@ int err_exit(char *string) {
 
 SSL_CTX * initialize_context_client() {
 
-  SSL_METHOD *method;
+  const SSL_METHOD *method;
   SSL_CTX *context;
 
   OpenSSL_add_all_algorithms();  /* Load cryptos, et.al. */
@@ -102,9 +107,12 @@ void request_access_control(SSL * ssl) {
 
 void execute() {
   
+  SSL_library_init();
+  
   SSL_CTX * context;
+  BIO *sbio;
   SSL * ssl;
-  int sockfd;;
+  int sockfd;
   
   /* Build our SSL context*/
   context = initialize_context_client();
@@ -113,11 +121,17 @@ void execute() {
   sockfd = tcp_connect();
   
   /* Connect the SSL socket */
-  SSL_set_fd(ssl, sockfd);
+  //SSL_set_fd(ssl, sockfd);
+  
+  /* Connect the SSL socket */
+  ssl = SSL_new(context);
+  sbio = BIO_new_socket(sockfd, BIO_NOCLOSE);
+  SSL_set_bio(ssl, sbio, sbio);
   
   if(SSL_connect(ssl) <= 0) {
     berr_exit("SSL connect error");
   }
+  
   
   if(REQUIRE_SERVER_AUTH) {
     verify_certificate(ssl, server_ip);
@@ -128,7 +142,7 @@ void execute() {
   close(sockfd);
   
   /* Shutdown the socket */
-  SSL_CTX_free(context)
+  SSL_CTX_free(context);
   
 
 }

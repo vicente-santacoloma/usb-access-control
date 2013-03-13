@@ -8,6 +8,7 @@
 
 #include "server.h"
 #include "user_management.h"
+#include "openssl/bio.h"
 #include "openssl/ssl.h"
 #include "openssl/err.h"
 
@@ -18,13 +19,13 @@
 #define PASSWORD "Password:"
 #define ACCESS_GRANTED "Access Granted"
 #define ACCESS_DENIED  "Access Denied"
-#define CERTIFICATE_FILE ""
-#define KEY_FILE ""
+#define CERTIFICATE_FILE "certificate.crt"
+#define KEY_FILE "privateKey.key"
 #define FAIL -1
 
 SSL_CTX *initialize_context_server() {
   
-  SSL_METHOD *method;
+  const SSL_METHOD *method;
   SSL_CTX *context;
  
   OpenSSL_add_all_algorithms();  /* load & register all cryptos, etc. */
@@ -37,6 +38,8 @@ SSL_CTX *initialize_context_server() {
       ERR_print_errors_fp(stderr);
       abort();
   }
+  
+  SSL_CTX_set_verify(context, SSL_VERIFY_PEER, NULL);
 
   return context;
 }
@@ -99,7 +102,7 @@ void response_access_control(SSL* ssl) {
   password[strlen(password) - 1] = 0;
   
   int access_control = check_access_control(username, password);
-  printf("Access Control: %d", access_control);
+  printf("Access Control: %d\n", access_control);
 
   if(access_control) {
     n = SSL_write(ssl, ACCESS_GRANTED, strlen(ACCESS_GRANTED));
@@ -117,27 +120,30 @@ void response_access_control(SSL* ssl) {
 
 void execute() {
   
+  SSL_library_init();
+  
   SSL_CTX *context;
   int sockfd, newsockfd, pid;
   sockfd = tcp_listen();
+
   socklen_t clilen;
   struct sockaddr_in cli_addr;
   clilen = sizeof(cli_addr);
   
-  SSL_library_init();
   context = initialize_context_server();
+  
   load_certificates(context, CERTIFICATE_FILE, KEY_FILE);
 
-
   while (1) {
+    
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-
     
     if (newsockfd < 0) {
       error("ERROR on accept");
     }
 
     SSL *ssl;
+    BIO *sbio;
 
     pid = fork();
 
@@ -147,14 +153,19 @@ void execute() {
 
     if (pid == 0)  {
       close(sockfd);
-      ssl = SSL_CTX_new(context);
-      SSL_set_fd(ssl, newsockfd);
 
+      /* Connect the SSL socket */
+      ssl = SSL_new(context);
+      sbio = BIO_new_socket(newsockfd, BIO_NOCLOSE);
+      SSL_set_bio(ssl, sbio, sbio);
+      
+      //SSL_set_fd(ssl, newsockfd);
+      
       /* do SSL-protocol accept */
       if (SSL_accept(ssl) == FAIL) {
         ERR_print_errors_fp(stderr);
       } else {
-        response_access_control(ssl);  
+        response_access_control(ssl);
       }
       
       close(newsockfd);

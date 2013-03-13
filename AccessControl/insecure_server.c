@@ -50,7 +50,7 @@ void response_access_control(int newsockfd) {
   password[strlen(password) - 1] = 0;
   
   int access_control = check_access_control(username, password);
-  printf("Access Control: %d", access_control);
+  printf("Access Control: %d\n", access_control);
   if(access_control) {
     n = write(newsockfd, ACCESS_GRANTED, strlen(ACCESS_GRANTED));
     if (n < 0) {

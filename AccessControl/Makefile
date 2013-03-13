@@ -4,17 +4,17 @@ CFLAGS=-c -Wall
 all: secure_client secure_server insecure_client insecure_server
 
 secure_client: secure_client.o client.o common.o
-	$(CC) secure_client.o client.o common.o -o acceso-rem-seg
-
+	$(CC) secure_client.o client.o common.o -o acceso-rem-seg -lssl -lcrypto
+  
 secure_server: secure_server.o server.o common.o user_management.o
-	$(CC) secure_server.o server.o common.o user_management.o -o serv-acceso-seg
+	$(CC) secure_server.o server.o common.o user_management.o -o serv-acceso-seg -lssl -lcrypto
 
 insecure_client: insecure_client.o client.o common.o
 	$(CC) insecure_client.o client.o common.o -o acceso-rem
 
 insecure_server: insecure_server.o server.o common.o user_management.o
 	$(CC) insecure_server.o server.o common.o user_management.o -o serv-acceso
-
+  
 secure_client.o: secure_client.c
 	$(CC) $(CFLAGS) secure_client.c
   
@@ -40,4 +40,4 @@ user_management.o: user_management.h user_management.c
 	$(CC) $(CFLAGS) user_management.c
 
 clean:
-	rm -f *.o acceso-rem serv-acceso
+	rm -f *.o acceso-rem-seg serv-acceso-seg acceso-rem serv-acceso
