@@ -2,7 +2,7 @@
 //  secure_server.c
 //  AccessControl
 //
-//  Created by Vicente Santacoloma on 3/10/13.
+//  Created by Vicente Santacoloma and Jesus Martinez.
 //  Copyright (c) 2013 Vicente Santacoloma. All rights reserved.
 //
 
@@ -23,6 +23,12 @@
 #define KEY_FILE "privateKey.key"
 #define FAIL -1
 
+/**
+ * This functions creates and initializes the SSL server's context. It
+ * also loads the algorithms and error strings used by the SSL library.
+ *
+ * @return SSL_CTX object representing the current SSL context.
+ */
 SSL_CTX *initialize_context_server() {
   
   const SSL_METHOD *method;
@@ -45,6 +51,12 @@ SSL_CTX *initialize_context_server() {
 }
 
 
+/**
+ * Searchs and shows the client's certificates (if exists). In more detail, 
+ * it provides the information contained in the Subject and Issuer fields.
+ *
+ * @param ssl SSL object containing the secure connection.
+ */
 void show_certificates(SSL * ssl) {
   
   X509 * certificate;
@@ -68,6 +80,13 @@ void show_certificates(SSL * ssl) {
 
 }
 
+/**
+ * Loads this server's certificate and private key into the SSL context.
+ *
+ * @param context Server's SSL context.
+ * @param certificate_f Name or path where the certificate file is.
+ * @param key_f Name or path where the key file is.
+ */
 void load_certificates(SSL_CTX* context, char* certificate_f, char* key_f) {
   
  /* set the local certificate from CertFile */
@@ -91,34 +110,45 @@ void load_certificates(SSL_CTX* context, char* certificate_f, char* key_f) {
 }
 
 
+/**
+ * Performs the access control process by requesting authentication info
+ * to the client and doing the subsequent data base check. Also informs client 
+ * if access has been granted or denied, all through SSL connection.
+ *
+ * @param ssl SSL object containing the secure connection.
+ */
 void response_access_control(SSL* ssl) {
   
   char username[BUFFER_SIZE];
   char password[BUFFER_SIZE];
   int n;
   
+  /* Buffer's initialization with zeros. */
   bzero(username, BUFFER_SIZE);
   bzero(password, BUFFER_SIZE);
   
+  /* Asks client for the username. */
   n = SSL_write(ssl, USERNAME, strlen(USERNAME));
   if (n < 0) {
     error("ERROR writing to socket");
   }
   
+  /* Retrieves client's response through secure socket. */
   n = SSL_read(ssl, username, BUFFER_SIZE);
   if (n < 0) {
     error("ERROR reading from socket");
   }
   username[strlen(username) - 1] = 0;
   
+
+  /* Asks client for the password. */
   n = SSL_write(ssl, PASSWORD, strlen(PASSWORD));
-  
   if (n < 0) {
     error("ERROR writing to socket");
   }
   
+  /* Retrieves client's response through secure socket. */
   n = SSL_read(ssl, password, BUFFER_SIZE);
-
   if (n < 0) {
     error("ERROR reading from socket");
   }
@@ -127,6 +157,7 @@ void response_access_control(SSL* ssl) {
   int access_control = check_access_control(username, password);
   printf("Access Control: %d\n", access_control);
 
+  /* Informs client about its service request status. */
   if(access_control) {
     n = SSL_write(ssl, ACCESS_GRANTED, strlen(ACCESS_GRANTED));
     if (n < 0) {
@@ -141,8 +172,14 @@ void response_access_control(SSL* ssl) {
   
 }
 
+
+/**
+ * Starts the execution of the server's tasks: User's authentication and
+ * posterior message exchange.
+ */
 void execute() {
   
+
   SSL_library_init();
   
   SSL_CTX *context;
@@ -168,6 +205,7 @@ void execute() {
     SSL *ssl;
     //BIO *sbio;
 
+    /* Forks to handle concurrent requests. */
     pid = fork();
 
     if (pid < 0) {
@@ -205,6 +243,7 @@ void execute() {
   SSL_CTX_free(context);
 }
 
+/* The main routine starts the program execution. */
 int main(int argc, const char * argv[]) {
   
   if (!server_load_parameters(argc, argv, &port_number)) {

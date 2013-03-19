@@ -2,7 +2,7 @@
 //  server.c
 //  AccessControl
 //
-//  Created by Vicente Santacoloma on 3/12/13.
+//  Created by Vicente Santacoloma and Jesus Martinez.
 //  Copyright (c) 2013 Vicente Santacoloma. All rights reserved.
 //
 
@@ -31,6 +31,7 @@ int tcp_listen() {
   if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
     error("ERROR on binding");
   }
+  
   listen(sockfd, LISTEN_CONNECTIONS);
   return sockfd;
 }

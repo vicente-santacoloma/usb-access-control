@@ -2,7 +2,7 @@
 //  secure_client.c
 //  AccessControl
 //
-//  Created by Vicente Santacoloma on 3/10/13.
+//  Created by Vicente Santacoloma and Jesus Martinez.
 //  Copyright (c) 2013 Vicente Santacoloma. All rights reserved.
 //
 
@@ -22,7 +22,10 @@
 #define BUFFER_SIZE 256
 #define REQUIRE_SERVER_AUTH 1
 
-/* Print SSL errors and exit*/
+/** 
+ * Print SSL errors and exit
+ * @param string Error description.
+ */
 int berr_exit(char *string) {
   fprintf(stderr,"%s\n",string);
   //BIO_printf(bio_err,"%s\n",string);
@@ -30,12 +33,21 @@ int berr_exit(char *string) {
   exit(0);
 }
 
-/* A simple error and exit routine*/
+/** 
+ * A simple error and exit routine
+ * @param string Error description.
+ */
 int err_exit(char *string) {
   fprintf(stderr,"%s\n",string);
   exit(0);
 }
 
+/**
+ * This functions creates and initializes the SSL client's context. It
+ * also loads the algorithms and error strings used by the SSL library.
+ *
+ * @return SSL_CTX object representing the current SSL context.
+ */
 SSL_CTX * initialize_context_client() {
 
   const SSL_METHOD *method;
@@ -52,6 +64,13 @@ SSL_CTX * initialize_context_client() {
   return context;
 }
 
+
+/**
+ * Requests and shows the server's certificate. In more detail, 
+ * it provides the information contained in the Subject and Issuer fields.
+ *
+ * @param ssl SSL object containing the secure connection.
+ */
 void show_certificate(SSL* ssl) {
   
   X509 *certificate;
@@ -73,17 +92,30 @@ void show_certificate(SSL* ssl) {
   }
 }
 
+/**
+ * Verifies the information contained in the server's certificate.
+ *
+ * @param ssl SSL object containing the secure connection.
+ * @param host Server's hostname.
+ */
 void verify_certificate(SSL * ssl, char * host) {
   
   X509 * certificate;
   char subject_name [256];
   
+  /* Gets server's certificate */
   if (!(certificate = SSL_get_peer_certificate(ssl)) || !host) {
     berr_exit("Certificate hasn't been provided");
   } else {
     
     //long result = SSL_get_verify_result(ssl);
     //printf("result: %ld", result);
+
+    /*Given that the server sings its own certificate, we are unable to verify
+      the correctness of it comparing the value retrieved by the SSL_get_verify_result()
+      function with X509_V_0K. Instead, the best we can do is verify that the certified
+      is indeed self signed by the server and no one else.
+      */
     if (SSL_get_verify_result(ssl) != X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
       berr_exit("Certificate doesn't verify");
     }
@@ -101,21 +133,37 @@ void verify_certificate(SSL * ssl, char * host) {
 
 }
 
+
+/**
+ * Performs the control access routine with the remote server.
+ *
+ * @param ssl SSL object containing the secure connection.
+ */
 void request_access_control(SSL * ssl) {
   
   char buffer[BUFFER_SIZE];
   int k, n;
   
+  /*The following instructions are executed twice: One for the Username
+    and one for the Password.*/ 
   for (k = 0; k < 2; ++k) {
     bzero(buffer, BUFFER_SIZE);
+
+    /* Gets server's request */
     n = SSL_read(ssl, buffer, BUFFER_SIZE);
     if (n < 0) {
       error("ERROR reading from socket");
     }
+
+    /* Prompts request to user. */
     printf("%s", buffer);
     
     bzero(buffer, BUFFER_SIZE);
+    
+    /* Gets user response. */
     fgets(buffer, BUFFER_SIZE, stdin);
+
+    /* Sends user response to server. */
     n = SSL_write(ssl, buffer, BUFFER_SIZE);
     if (n < 0) {
       error("ERROR writing to socket");
@@ -123,10 +171,12 @@ void request_access_control(SSL * ssl) {
   }
   
   bzero(buffer, BUFFER_SIZE);
+  /* Gets service request status from the server. */
   n = SSL_read(ssl, buffer, BUFFER_SIZE);
   if (n < 0) {
     error("ERROR reading from socket");
   }
+  /*Prompts status to user.*/
   printf("%s", buffer);
   
 }
@@ -177,6 +227,7 @@ void execute() {
 
 }
 
+/* The main routine starts the program execution. */
 int main(int argc, const char * argv[]) {
   
   if (!client_load_parameters(argc, argv, &server_ip, &server_port_number)) {
