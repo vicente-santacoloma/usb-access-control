@@ -20,7 +20,7 @@
 #include "client.h"
 
 #define BUFFER_SIZE 256
-#define REQUIRE_SERVER_AUTH 0
+#define REQUIRE_SERVER_AUTH 1
 
 /* Print SSL errors and exit*/
 int berr_exit(char *string) {
@@ -52,6 +52,27 @@ SSL_CTX * initialize_context_client() {
   return context;
 }
 
+void show_certificate(SSL* ssl) {
+  
+  X509 *certificate;
+  char *line;
+  
+  certificate = SSL_get_peer_certificate(ssl); /* get the server's certificate */
+  if (certificate != NULL)
+  {
+    printf("Server certificates:\n");
+    line = X509_NAME_oneline(X509_get_subject_name(certificate), 0, 0);
+    printf("Subject: %s\n", line);
+    free(line);       /* free the malloc'ed string */
+    line = X509_NAME_oneline(X509_get_issuer_name(certificate), 0, 0);
+    printf("Issuer: %s\n", line);
+    free(line);       /* free the malloc'ed string */
+    X509_free(certificate);     /* free the malloc'ed certificate copy */
+  } else {
+    printf("No certificates.\n");
+  }
+}
+
 void verify_certificate(SSL * ssl, char * host) {
   
   X509 * certificate;
@@ -61,16 +82,21 @@ void verify_certificate(SSL * ssl, char * host) {
     berr_exit("Certificate hasn't been provided");
   } else {
     
-    if (SSL_get_verify_result(ssl) != X509_V_OK) {
+    //long result = SSL_get_verify_result(ssl);
+    //printf("result: %ld", result);
+    if (SSL_get_verify_result(ssl) != X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
       berr_exit("Certificate doesn't verify");
     }
     
     /*Check the common name*/
+    /*
     X509_NAME_get_text_by_NID(X509_get_subject_name(certificate),
                               NID_commonName, subject_name, 256);
+    //printf("subject_name: %s" , subject_name);
     if(strcasecmp(subject_name, host)) {
       err_exit("Common name doesn't match host name");
     }
+    */
   }
 
 }
@@ -110,7 +136,7 @@ void execute() {
   SSL_library_init();
   
   SSL_CTX * context;
-  BIO *sbio;
+  //BIO *sbio;
   SSL * ssl;
   int sockfd;
   
@@ -125,13 +151,17 @@ void execute() {
   
   /* Connect the SSL socket */
   ssl = SSL_new(context);
-  sbio = BIO_new_socket(sockfd, BIO_NOCLOSE);
-  SSL_set_bio(ssl, sbio, sbio);
+  //sbio = BIO_new_socket(sockfd, BIO_NOCLOSE);
+  //SSL_set_bio(ssl, sbio, sbio);
+  
+  SSL_set_fd(ssl, sockfd);
   
   if(SSL_connect(ssl) <= 0) {
     berr_exit("SSL connect error");
   }
   
+  //uncomment to show certificates
+  //show_certificate(ssl); 
   
   if(REQUIRE_SERVER_AUTH) {
     verify_certificate(ssl, server_ip);

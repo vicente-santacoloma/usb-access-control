@@ -33,7 +33,7 @@ SSL_CTX *initialize_context_server() {
   method = SSLv23_server_method();  /* create new server-method instance */
   context = SSL_CTX_new(method);   /* create new context from method */
   
-  if ( context == NULL )
+  if (context == NULL)
   {
       ERR_print_errors_fp(stderr);
       abort();
@@ -44,6 +44,29 @@ SSL_CTX *initialize_context_server() {
   return context;
 }
 
+
+void show_certificates(SSL * ssl) {
+  
+  X509 * certificate;
+  char * line;
+  
+  certificate = SSL_get_peer_certificate(ssl); /* Get certificates (if available) */
+  if (certificate != NULL)
+  {
+    printf("Server certificates:\n");
+    line = X509_NAME_oneline(X509_get_subject_name(certificate), 0, 0);
+    printf("Subject: %s\n", line);
+    free(line);
+    line = X509_NAME_oneline(X509_get_issuer_name(certificate), 0, 0);
+    printf("Issuer: %s\n", line);
+    free(line);
+    X509_free(certificate);
+  } else {
+    printf("No certificates.\n");
+  }
+  
+
+}
 
 void load_certificates(SSL_CTX* context, char* certificate_f, char* key_f) {
   
@@ -143,7 +166,7 @@ void execute() {
     }
 
     SSL *ssl;
-    BIO *sbio;
+    //BIO *sbio;
 
     pid = fork();
 
@@ -156,15 +179,17 @@ void execute() {
 
       /* Connect the SSL socket */
       ssl = SSL_new(context);
-      sbio = BIO_new_socket(newsockfd, BIO_NOCLOSE);
-      SSL_set_bio(ssl, sbio, sbio);
+      //sbio = BIO_new_socket(newsockfd, BIO_NOCLOSE);
+      //SSL_set_bio(ssl, sbio, sbio);
       
-      //SSL_set_fd(ssl, newsockfd);
+      SSL_set_fd(ssl, newsockfd);
       
       /* do SSL-protocol accept */
       if (SSL_accept(ssl) == FAIL) {
         ERR_print_errors_fp(stderr);
       } else {
+        //uncomment to show certificates
+        //show_certificates(ssl);
         response_access_control(ssl);
       }
       
