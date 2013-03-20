@@ -111,7 +111,7 @@ void verify_certificate(SSL * ssl, char * host) {
     //long result = SSL_get_verify_result(ssl);
     //printf("result: %ld", result);
 
-    /*Given that the server sings its own certificate, we are unable to verify
+    /*Given that the server signs its own certificate, we are unable to verify
       the correctness of it comparing the value retrieved by the SSL_get_verify_result()
       function with X509_V_0K. Instead, the best we can do is verify that the certified
       is indeed self signed by the server and no one else.
