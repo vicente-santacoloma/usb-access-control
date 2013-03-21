@@ -22,7 +22,9 @@ int main(int argc, const char * argv[]) {
   add_user("user8", "user8");
   add_user("user9", "user9");
   add_user("user10", "user10");
-  //printf("Check: %d", check_access_control("user10", "user10"));
+  
+  //printf("Check: %d", check_access_control("user1", "user1"));
+  //printf("Check: %d", check_access_control("user1", "abc"));
   
   return 0;
 }
