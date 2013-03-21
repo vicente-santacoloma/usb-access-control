@@ -101,7 +101,7 @@ void show_certificate(SSL* ssl) {
 void verify_certificate(SSL * ssl, char * host) {
   
   X509 * certificate;
-  char subject_name [256];
+  
   
   /* Gets server's certificate */
   if (!(certificate = SSL_get_peer_certificate(ssl)) || !host) {
@@ -116,12 +116,15 @@ void verify_certificate(SSL * ssl, char * host) {
       function with X509_V_0K. Instead, the best we can do is verify that the certified
       is indeed self signed by the server and no one else.
       */
-    if (SSL_get_verify_result(ssl) != X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) {
+    long verify = SSL_get_verify_result(ssl);
+    if ((verify != X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) &&
+        (verify != X509_V_OK)) {
       berr_exit("Certificate doesn't verify");
     }
     
     /*Check the common name*/
     /*
+    char subject_name [256];
     X509_NAME_get_text_by_NID(X509_get_subject_name(certificate),
                               NID_commonName, subject_name, 256);
     //printf("subject_name: %s" , subject_name);
@@ -186,7 +189,6 @@ void execute() {
   SSL_library_init();
   
   SSL_CTX * context;
-  //BIO *sbio;
   SSL * ssl;
   int sockfd;
   
@@ -197,12 +199,9 @@ void execute() {
   sockfd = tcp_connect();
   
   /* Connect the SSL socket */
-  //SSL_set_fd(ssl, sockfd);
   
   /* Connect the SSL socket */
   ssl = SSL_new(context);
-  //sbio = BIO_new_socket(sockfd, BIO_NOCLOSE);
-  //SSL_set_bio(ssl, sbio, sbio);
   
   SSL_set_fd(ssl, sockfd);
   

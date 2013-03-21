@@ -29,6 +29,7 @@ Contenido del paquete:
 	- secure_client.c: Versión segura del cliente, utilizando la librería OpenSSL con TLS.
 	- common.h: Header del archivo common.c
 	- common.c: Funciones comunes para todos los archivos.
+  - add_users.c: Ejecutable para añadir nuevos usuarios a la base de datos.
 	- users_db: Base de datos de usuarios con sus respectivas contraseñas.
 	- certificate.crt: Certificado auto-firmado del servidor.
 	- privateKey.key: Clave privada del servidor.
@@ -42,6 +43,18 @@ Instrucciones de instalación:
 
 	Luego se produciran cuatro ejecutables correspondientes a las versiones seguras e inseguras tanto del cliente como del servidor:
 	"insecure_client", "secure_client", "insecure_server", "secure_server".
+
+  El comando utilizado para generar el certificado autofirmado es:
+  openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out certificate.crt
+  
+  donde:
+    -x509: Tipo de certificado solicitado.
+    -nodes: La clave privada generada para este certificado no se guardara cifrada.
+    -days: Numero de dias de validez del certificado.
+    -newkey: Algoritmo de clave publica utilizado, asi como la longitud de la clave
+             generada.
+    -keyout: Especifica el nombre del archivo donde se guardara la clave.
+    -out: Especifica el nombre del archivo donde se guardara el certificado.
 
 Instrucciones de ejecución:
 
@@ -66,3 +79,9 @@ Detalles adicionales:
 	La elaboración del código se nutrió de la información presentada en los siguientes enlaces:
 	- http://simplestcodings.blogspot.com/2010/08/secure-server-client-using-openssl-in-c.html
 	- http://www.rtfm.com/openssl-examples/
+  - Si la opción está habilitada, en la base de datos de los usuarios, se almacena
+    el resumen criptografico de sus respectivas contraseñas en vez de lo contraseña
+    per se. Asi, cuando se desea autenticar a un usuario, se calcula el resumen
+    criptografico de la contraseña recien introducida con aquel almacenado en
+    la base de datos. Si coincide, entonces, se concede acceso. Si no, se deniega
+    el acceso. La funcion utilizada para calcular tales resumenes es SHA512
