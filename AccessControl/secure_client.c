@@ -177,7 +177,7 @@ void request_access_control(SSL * ssl) {
     error("ERROR reading from socket");
   }
   /*Prompts status to user.*/
-  printf("%s", buffer);
+  printf("%s\n", buffer);
   
 }
 

@@ -56,7 +56,7 @@ void request_access_control(int sockfd) {
   }
 
   /*Prompts status to user.*/
-  printf("%s", buffer);
+  printf("%s\n", buffer);
   
 }
 

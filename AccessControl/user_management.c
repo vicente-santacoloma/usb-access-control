@@ -8,6 +8,21 @@
 
 #include "user_management.h"
 
+char hash_password [SHA512_DIGEST_LENGTH];
+
+void sha512(char * data) {
+  
+  unsigned char hash [SHA512_DIGEST_LENGTH];
+  
+  SHA512((unsigned char *) data, strlen(data), hash);
+  
+  int i;
+  for(i = 0; i < SHA512_DIGEST_LENGTH; ++i) {
+    sprintf(hash_password + (i * 2), "%02x", hash[i]);
+  }
+  
+}
+
 int add_user(char * username, char * password) {
   
   FILE *fp;
@@ -19,8 +34,13 @@ int add_user(char * username, char * password) {
     exit(0);
   }
   
-  /* write to the file */
-  fprintf(fp, "%s %s\n", username, password);
+  if (HASH) {
+    sha512(password);
+    /* write to the file */
+    fprintf(fp, "%s %s\n", username, hash_password);
+  } else {
+    fprintf(fp, "%s %s\n", username, password);
+  }
   
   /* close the file */
   fclose(fp);
@@ -43,8 +63,20 @@ int check_access_control(char * username, char * password) {
     
     fscanf(fp, "%s %s\n", aux_username, aux_password);
     
+    //printf("%s\n%s\n\n", sha512(password), aux_password);
+    
     if (strcmp(username, aux_username) == 0) {
-      if (strcmp(password, aux_password) == 0) {
+      
+      int password_validate;
+      
+      if (HASH) {
+        sha512(password);
+        password_validate = strcmp(hash_password, aux_password);
+      } else {
+        password_validate = strcmp(password, aux_password);
+      }
+      
+      if (password_validate == 0) {
         fclose(fp);
         return TRUE;
       } else {
@@ -57,16 +89,3 @@ int check_access_control(char * username, char * password) {
   fclose(fp);
   return FALSE;
 }
-
-/*
-int main(int argc, const char * argv[])
-{
-  add_user("user1", "user1");
-  add_user("user2", "user2");
-  add_user("user3", "user3");
-  add_user("user4", "user4");
-  add_user("user5", "user5");
-  printf("Check: %d", check_access_control("user1", "user1"));
-  
-  return 0;
-}*/
