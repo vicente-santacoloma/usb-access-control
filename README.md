@@ -3,18 +3,18 @@ Simón Bolívar University - CI6352 - Cryptography and Data Security - Access Co
 
 ## Descripción
 
-El ejercicio se basa en programar una versión segura y una insegura de una aplicación (cliente-servidor) que solicita datos privados por la red, y verificar el funcionamiento de cada una con un analizador de tráfico. Los programas se desarrollarán en C.
+El ejercicio se basa en programar una versión segura y una insegura de una aplicación cliente-servidor que solicita datos privados por la red, y verificar el funcionamiento de cada una con un analizador de tráfico. Los programas se desarrollarán en C.
 
-Cuando un cliente se conecta al servidor, éste retorna un mensaje solicitando "nombre de usuario", espera la respuesta, y luego envía "clave". El servidor debe tener un archivo con los usuarios y sus claves para poder verificarlo.
+Cuando un cliente se conecta al servidor, éste retorna un mensaje solicitando 'nombre de usuario', espera la respuesta, y luego envía 'clave'. El servidor debe tener un archivo con los usuarios y sus claves para poder verificarlo.
 	
-Si el usuario existe en el sistema y la clave es correcta, el servidor responde con un mensaje "Usuario autorizado"; en caso contrario debe responder "Acceso denegado".
+Si el usuario existe en el sistema y la clave es correcta, el servidor responde con un mensaje 'Usuario autorizado'; en caso contrario debe responder 'Acceso denegado'.
 
 Las claves de los usuarios deben guardarse utilizando algoritmos criptográficos con el fin de disminuir las posibilidades de violación de seguridad.
 
 ## Estructura
 
-| Archivo           | Descripción |
-|-------------------|
+| Archivo           | Descripción                                                           |
+|-------------------|-----------------------------------------------------------------------|
 | user_management.h | Header del archivo user_management.c                                  |
 | user_management.c | Funciones para la gestión de usuarios                                 |
 | server.h          | Header del archivo server.c                                           |
@@ -47,7 +47,7 @@ Para compilar el código en OS basado en linux, deberemos posicionarnos en la ca
 make
 ```
 
-Luego se produciran cuatro ejecutables correspondientes a las versiones seguras e inseguras tanto del cliente como del servidor:
+Luego se producirán cuatro ejecutables correspondientes a las versiones seguras e inseguras tanto del cliente como del servidor:
 
 * `insecure_client`
 * `secure_client`
@@ -64,7 +64,7 @@ donde:
 * **-x509:** Tipo de certificado solicitado.
 * **-nodes:** La clave privada generada para este certificado no se guardara cifrada.
 * **-days:** Número de días de validez del certificado.
-* **-newkey:** Algoritmo de clave publica utilizado, asi como la longitud de la clave generada.
+* **-newkey:** Algoritmo de clave pública utilizado, así como la longitud de la clave generada.
 * **-keyout:** Especifica el nombre del archivo donde se guardara la clave.
 * **-out:** Especifica el nombre del archivo donde se guardara el certificado.
 
@@ -72,15 +72,37 @@ donde:
 
 Los comandos para ejecutar cliente y servidor, son:
 
-	Cliente:
-	$> acceso-rem -s ip-servidor -p puerto-servidor (version insegura).
-	$> acceso-rem-seg -s ip-servidor -p puerto-servidor (version con OpenSSL).
-	donde ip-servidor y puerto servidor son el IP de la maquina y el puerto, respectivamente, donde esta conectado el servidor
+#### Cliente:
 
-	Servidor:
-	$> serv_acceso -p puerto (versión insegura).
-	$> serv-acceso-seg -p puerto (versión segura).
-	Donde puerto es el número del puerto por el que atiende peticiones el servidor.
+##### Versión Segura con OpenSSL
+
+```bash
+acceso-rem-seg -s [ip-servidor] -p [puerto-servidor]
+```
+
+##### Versión Insegura
+
+```bash
+acceso-rem -s [ip-servidor] -p [puerto-servidor]
+```
+
+Donde `ip-servidor` es el IP de la máquina y `puerto-servidor` el puerto donde está conectacdo el servidor.
+
+#### Servidor
+
+##### Versión Segura con OpenSSL
+
+```bash
+serv-acceso-seg -p [puerto]
+```
+
+##### Versión Insegura
+
+```bash
+serv_acceso -p [puerto]
+```
+
+Donde `puerto` es el número del puerto por el que atiende peticiones el servidor.
 
 ## Detalles Adicionales:
 
