@@ -60,7 +60,7 @@ El comando utilizado para generar el certificado autofirmado es:
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout privateKey.key -out certificate.crt
 ```
 
-donde:
+Donde:
 * **-x509:** Tipo de certificado solicitado.
 * **-nodes:** La clave privada generada para este certificado no se guardara cifrada.
 * **-days:** Número de días de validez del certificado.
@@ -72,7 +72,7 @@ donde:
 
 Los comandos para ejecutar cliente y servidor, son:
 
-#### Cliente:
+#### Cliente
 
 ##### Versión Segura con OpenSSL
 
