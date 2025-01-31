@@ -1,5 +1,5 @@
 # usb-access-control
-Simón Bolívar University - CI6352 - Cryptography and Data Security - Access Control
+Universidad Simón Bolívar - CI6352 - Cryptography and Data Security - Access Control
 
 ## Descripción
 
